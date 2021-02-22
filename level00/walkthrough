@@ -38,3 +38,6 @@ End of assembler dump.
 Si pas égal, on skip l'appel system
 Si égal, on affiche  "\nAuthenticated!" et on fait l'appel system
 Le password est donc 5276
+
+cat /home/users/level01/.pass
+uSq2ehEGT6c9S24zbshexZQBXUGrncxn5sD5QfGL
