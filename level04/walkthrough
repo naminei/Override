@@ -95,7 +95,7 @@ si elle existe, une adresse contenant la chaine "/bin/sh" (Si elle existe pas on
 info function nous permet de trouver les adresses de system et exit
 0xf7e6aed0  system
 0xf7e5eb70  exit
-La commande suivante va nous permettre de potentiellement trouver /bin/sh
+La commande suivante va nous permettre trouver /bin/sh si il y en a un
 (gdb) find __libc_start_main,+99999999,"/bin/sh"
 0xf7f897ec
 warning: Unable to access target memory at 0xf7fd3b74, halting search.
