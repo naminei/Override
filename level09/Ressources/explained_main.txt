@@ -1,0 +1,148 @@
+  
+
+------------------------------------- Main --------------------------------------------
+
+
+  0x0000555555554aa8 <+0>:	push   %rbp <--------|  Save Start of Stack Frame
+   0x0000555555554aa9 <+1>:	mov    %rsp,%rbp <---|
+   0x0000555555554aac <+4>:	lea    0x15d(%rip),%rdi        # 0x555555554c10 <--| Print"[...]Welcome to L33T M$N[..]"
+   0x0000555555554ab3 <+11>:	callq  0x555555554730 <puts@plt> <-------------|
+   0x0000555555554ab8 <+16>:	callq  0x5555555548c0 <handle_msg> <--- Call Handle_msg function
+   0x0000555555554abd <+21>:	mov    $0x0,%eax <---- Return 0
+   0x0000555555554ac2 <+26>:	pop    %rbp
+   0x0000555555554ac3 <+27>:	retq
+
+------------------------------------- Handle_msg --------------------------------------------
+
+   0x00000000000008c0 <+0>:	push   %rbp <--------| Save Start of Stack Frame
+   0x00000000000008c1 <+1>:	mov    %rsp,%rbp <---|
+   0x00000000000008c4 <+4>:	sub    $0xc0,%rsp <------ Give 192 bytes of memory
+   0x00000000000008cb <+11>:	lea    -0xc0(%rbp),%rax <---| Declare a variable initialize to 140
+   0x00000000000008d2 <+18>:	add    $0x8c,%rax <---------|
+   0x00000000000008d8 <+24>:	movq   $0x0,(%rax) <------------|
+   0x00000000000008df <+31>:	movq   $0x0,0x8(%rax)           |
+   0x00000000000008e7 <+39>:	movq   $0x0,0x10(%rax)          |  Declare a tab of char of 40 initialize to zero
+   0x00000000000008ef <+47>:	movq   $0x0,0x18(%rax)          |
+   0x00000000000008f7 <+55>:	movq   $0x0,0x20(%rax) <--------|
+   0x00000000000008ff <+63>:	movl   $0x8c,-0xc(%rbp)
+   0x0000000000000906 <+70>:	lea    -0xc0(%rbp),%rax <----- Declare a variable of 140 
+   0x000000000000090d <+77>:	mov    %rax,%rdi
+   0x0000000000000910 <+80>:	callq  0x9cd <set_username> <---- Call set username with our struct initilize before
+   0x0000000000000915 <+85>:	lea    -0xc0(%rbp),%rax <--------|
+   0x000000000000091c <+92>:	mov    %rax,%rdi                 | Call set_msg with our structure
+   0x000000000000091f <+95>:	callq  0x932 <set_msg> <---------|
+   0x0000000000000924 <+100>:	lea    0x295(%rip),%rdi        # 0xbc0 <----| Print ">: Msg sent!"
+   0x000000000000092b <+107>:	callq  0x730 <puts@plt>                <----|
+   0x0000000000000930 <+112>:	leaveq
+   0x0000000000000931 <+113>:	retq
+
+------------------------------------- Set_Username --------------------------------------------
+
+ 9cd:	55                   	push   %rbp <-------------| Save Start od Stack Frame
+ 9ce:	48 89 e5             	mov    %rsp,%rbp <--------|
+ 9d1:	48 81 ec a0 00 00 00 	sub    $0xa0,%rsp <--------- Give 160 of memory 
+ 9d8:	48 89 bd 68 ff ff ff 	mov    %rdi,-0x98(%rbp) <----- Get argv
+ 9df:	48 8d 85 70 ff ff ff 	lea    -0x90(%rbp),%rax <----- Create a variable of (160 - 144) 128
+ 9e6:	48 89 c6             	mov    %rax,%rsi
+ 9e9:	b8 00 00 00 00       	mov    $0x0,%eax <---- Set eax to 0
+ 9ee:	ba 10 00 00 00       	mov    $0x10,%edx <---- Set edx to 16
+ 9f3:	48 89 f7             	mov    %rsi,%rdi <---- move our buffer in rdi
+ 9f6:	48 89 d1             	mov    %rdx,%rcx <------- While 16 
+ 9f9:	f3 48 ab             	rep stos %rax,%es:(%rdi)
+ 9fc:	48 8d 3d e1 01 00 00 	lea    0x1e1(%rip),%rdi        # be4 <_IO_stdin_used+0x2c> <----| Print ">: Enter your username"
+ a03:	e8 28 fd ff ff       	callq  730 <puts@plt>                                      <----|
+ a08:	48 8d 05 d0 01 00 00 	lea    0x1d0(%rip),%rax        # bdf <_IO_stdin_used+0x27>| 
+ a0f:	48 89 c7             	mov    %rax,%rdi                                          | Print ">>: "
+ a12:	b8 00 00 00 00       	mov    $0x0,%eax                                          |
+ a17:	e8 34 fd ff ff       	callq  750 <printf@plt> <---------------------------------|
+ a1c:	48 8b 05 95 15 20 00 	mov    0x201595(%rip),%rax        # 201fb8 <_DYNAMIC+0x198> <----- Get input of the user
+ a23:	48 8b 00             	mov    (%rax),%rax
+ a26:	48 89 c2             	mov    %rax,%rdx <--------- Rdx point on rax
+ a29:	48 8d 85 70 ff ff ff 	lea    -0x90(%rbp),%rax <---------- load our tab of 128
+ a30:	be 80 00 00 00       	mov    $0x80,%esi <------ Set 128 in esi
+ a35:	48 89 c7             	mov    %rax,%rdi
+ a38:	e8 33 fd ff ff       	callq  770 <fgets@plt> <---------- fgets(tab[128], 128, stdin)
+ a3d:	c7 45 fc 00 00 00 00 	movl   
+ a44:	eb 24                	jmp    a6a <set_username+0x9d>
+ a46:	8b 45 fc             	mov    -0x4(%rbp),%eax <---- init an int
+ a49:	48 98                	cltq
+ a4b:	0f b6 8c 05 70 ff ff 	movzbl -0x90(%rbp,%rax,1),%ecx  <------- tab[int]
+ a52:	ff
+ a53:	48 8b 95 68 ff ff ff 	mov    -0x98(%rbp),%rdx <--------- argv (message)
+ a5a:	8b 45 fc             	mov    -0x4(%rbp),%eax 
+ a5d:	48 98                	cltq
+ a5f:	88 8c 02 8c 00 00 00 	mov    %cl,0x8c(%rdx,%rax,1) <------- argv message[int] = tab[int]
+ a66:	83 45 fc 01          	addl   $0x1,-0x4(%rbp) <----- counter +1
+ a6a:	83 7d fc 28          	cmpl   $0x28,-0x4(%rbp) <------ if int <= 40
+ a6e:	7f 11                	jg     a81 <set_username+0xb4> 
+ a70:	8b 45 fc             	mov    -0x4(%rbp),%eax <---- eax = counter
+ a73:	48 98                	cltq
+ a75:	0f b6 84 05 70 ff ff 	movzbl -0x90(%rbp,%rax,1),%eax
+ a7c:	ff
+ a7d:	84 c0                	test   %al,%al
+ a7f:	75 c5                	jne    a46 <set_username+0x79>
+ a81:	48 8b 85 68 ff ff ff 	mov    -0x98(%rbp),%rax
+ a88:	48 8d 90 8c 00 00 00 	lea    0x8c(%rax),%rdx <-------- load a variable in rax
+ a8f:	48 8d 05 65 01 00 00 	lea    0x165(%rip),%rax        # bfb <_IO_stdin_used+0x43> <-------- 
+ a96:	48 89 d6             	mov    %rdx,%rsi
+ a99:	48 89 c7             	mov    %rax,%rdi
+ a9c:	b8 00 00 00 00       	mov    $0x0,%eax <--------- set eax to 0
+ aa1:	e8 aa fc ff ff       	callq  750 <printf@plt> <---- " Print ">: Welcome, [STDIN]""
+ aa6:	c9                   	leaveq
+ aa7:	c3                   	retq
+
+ ------------------------------------- Set_msg --------------------------------------------
+ 932:	55                   	push   %rbp <-----------| Save Start of Frame
+ 933:	48 89 e5             	mov    %rsp,%rbp <------|
+ 936:	48 81 ec 10 04 00 00 	sub    $0x410,%rsp <------- Give 1040 bytes of memory
+ 93d:	48 89 bd f8 fb ff ff 	mov    %rdi,-0x408(%rbp) <----------| argv
+ 944:	48 8d 85 00 fc ff ff 	lea    -0x400(%rbp),%rax <----| Set char[1024]
+ 94b:	48 89 c6             	mov    %rax,%rsi
+ 94e:	b8 00 00 00 00       	mov    $0x0,%eax  <---------------------------|
+ 953:	ba 80 00 00 00       	mov    $0x80,%edx                             |
+ 958:	48 89 f7             	mov    %rsi,%rdi                              | Bzero like of 128 bytes in char[1024]
+ 95b:	48 89 d1             	mov    %rdx,%rcx                              |
+ 95e:	f3 48 ab             	rep stos %rax,%es:(%rdi) <--------------------|
+ 961:	48 8d 3d 65 02 00 00 	lea    0x265(%rip),%rdi   # bcd <_IO_stdin_used+0x15> <-----| Print ">: Msg @Unix-Dude"
+ 968:	e8 c3 fd ff ff       	callq  730 <puts@plt> <-------------------------------------|
+ 96d:	48 8d 05 6b 02 00 00 	lea    0x26b(%rip),%rax        # bdf <_IO_stdin_used+0x27> --|
+ 974:	48 89 c7             	mov    %rax,%rdi                                             | Print ">>: [Input user]"
+ 977:	b8 00 00 00 00       	mov    $0x0,%eax                                             |
+ 97c:	e8 cf fd ff ff       	callq  750 <printf@plt> <------------------------------------|
+ 981:	48 8b 05 30 16 20 00 	mov    0x201630(%rip),%rax        # 201fb8 <_DYNAMIC+0x198> <------- stdin
+ 988:	48 8b 00             	mov    (%rax),%rax
+ 98b:	48 89 c2             	mov    %rax,%rdx
+ 98e:	48 8d 85 00 fc ff ff 	lea    -0x400(%rbp),%rax <--- Loaded string for fget (fget_str)
+ 995:	be 00 04 00 00       	mov    $0x400,%esi <------ load "H  " in esi or "1024"
+ 99a:	48 89 c7             	mov    %rax,%rdi
+ 99d:	e8 ce fd ff ff       	callq  770 <fgets@plt> fgets ( fget_str, 1024, stdin) 
+ 9a2:	48 8b 85 f8 fb ff ff 	mov    -0x408(%rbp),%rax <-----| Access to a specific arg (spec_arg) 
+ 9a9:	8b 80 b4 00 00 00    	mov    0xb4(%rax),%eax <-------|
+ 9af:	48 63 d0             	movslq %eax,%rdx
+ 9b2:	48 8d 8d 00 fc ff ff 	lea    -0x400(%rbp),%rcx <---------- point on b char[1024]
+ 9b9:	48 8b 85 f8 fb ff ff 	mov    -0x408(%rbp),%rax <---------- point on argv
+ 9c0:	48 89 ce             	mov    %rcx,%rsi
+ 9c3:	48 89 c7             	mov    %rax,%rdi
+ 9c6:	e8 55 fd ff ff       	callq  720 <strncpy@plt> <------------ strncpy(arv, char[1024],spec_arg)
+ 9cb:	c9                   	leaveq
+ 9cc:	c3                   	retq
+
+  ------------------------------------- Secret Backdoor --------------------------------------------
+
+   88c:	55                   	push   %rbp <------------| Save Start of Frame
+ 88d:	48 89 e5             	mov    %rsp,%rbp <-------|
+ 890:	48 83 c4 80          	add    $0xffffffffffffff80,%rsp
+ 894:	48 8b 05 1d 17 20 00 	mov    0x20171d(%rip),%rax        # 201fb8 <_DYNAMIC+0x198>
+ 89b:	48 8b 00             	mov    (%rax),%rax
+ 89e:	48 89 c2             	mov    %rax,%rdx
+ 8a1:	48 8d 45 80          	lea    -0x80(%rbp),%rax <---- Give 120  of memory
+ 8a5:	be 80 00 00 00       	mov    $0x80,%esi <----- Set esi to 128
+ 8aa:	48 89 c7             	mov    %rax,%rdi
+ 8ad:	e8 be fe ff ff       	callq  770 <fgets@plt> fgets(buffer[80], 128, stdin)
+ 8b2:	48 8d 45 80          	lea    -0x80(%rbp),%rax <--- point on buffer
+ 8b6:	48 89 c7             	mov    %rax,%rdi 
+ 8b9:	e8 82 fe ff ff       	callq  740 <system@plt> <---- call system with our buffer 
+ 8be:	c9                   	leaveq
+ 8bf:	c3                   	retq
+
+
