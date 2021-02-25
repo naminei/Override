@@ -1,0 +1,82 @@
+On trouve l'appel system dans la fonction decrypt. Celle-ci est appelé dans la fonction test
+qui elle même est appelée dans le main:
+
+(gdb) disas main
+Dump of assembler code for function main:
+   0x0804885a <+0>:     push   %ebp
+   - - -
+   0x080488d5 <+123>:   call   0x8048747 <test>
+   0x080488da <+128>:   mov    $0x0,%eax
+   0x080488df <+133>:   leave  
+   0x080488e0 <+134>:   ret    
+End of assembler dump.
+
+(gdb) disas test
+Dump of assembler code for function test:
+   0x08048747 <+0>:     push   %ebp
+   - - -
+   0x0804877b <+52>:    call   0x8048660 <decrypt>
+   - - -
+   0x08048859 <+274>:   ret    
+End of assembler dump.
+
+(gdb) disas decrypt
+Dump of assembler code for function decrypt:
+   - - -
+   0x08048715 <+181>:   movl   $0x80489d4,(%esp)                    /bin/sh
+   0x0804871c <+188>:   call   0x80484e0 <system@plt>
+   - - -
+   0x08048746 <+230>:   ret    
+End of assembler dump.
+
+--------------------------------------------------------------------------------------------------
+
+"Q}|u`sfg~sf{}|a3" est la string avec laquelle est comparée "Congratulations!" dans decrypt.
+Si strncmp retourne 0, alors on lance le shell.
+
+(gdb) disas decrypt
+Dump of assembler code for function decrypt:
+   ---
+   0x08048673 <+19>:    movl   $0x757c7d51,-0x1d(%ebp)      Q}|u
+   0x0804867a <+26>:    movl   $0x67667360,-0x19(%ebp)      `sfg
+   0x08048681 <+33>:    movl   $0x7b66737e,-0x15(%ebp)      ~sf{
+   0x08048688 <+40>:    movl   $0x33617c7d,-0x11(%ebp)      }|a3
+   - - -
+   0x080486f2 <+146>:   mov    $0x80489c3,%eax                      "Congratulations!"
+   - - -
+   0x08048700 <+160>:   repz cmpsb %es:(%edi),%ds:(%esi)
+   - - -
+   0x08048715 <+181>:   movl   $0x80489d4,(%esp)                    /bin/sh
+   0x0804871c <+188>:   call   0x80484e0 <system@plt>
+   - - -
+   0x08048746 <+230>:   ret    
+End of assembler dump.
+
+--------------------------------------------------------------------------------------------------
+
+Quelles modification subit la chaine de caractère avant d'être comparée?
+Elle est multipliée par l'int passé en paramètre de la fonction decrypt.
+
+À quoi est égal cet int?
+À la différence entre le 1er param et le 2nd de la fonction test.
+Cette différence est seulement prise en compte si elle est inférieure à 21.
+Le deuxième param est: 322424845
+
+--------------------------------------------------------------------------------------------------
+
+Nous cherchons donc à passer de "Q}|u`sfg~sf{}|a3" à "Congratulations!"
+
+Comment passer de Q à C?
+man ascii
+'Q' = 121 et 'C' = 103
+'Q' - 'C' = 18
+
+Pour que decrypt recoive 18 en parametre, on doit donc avoir 18 en moins entre
+322424845 et le nombre que l'on reçoit grâce au scanf.
+322424845 - 18 = 322424827
+
+./level03
+322424827
+
+$ cd ../level04 && cat .pass
+kgv3tkEb9h2mLkRsPkXRfc2mHbjMxQzvb2FrgKkf
