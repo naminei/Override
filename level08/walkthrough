@@ -1,0 +1,58 @@
+Notre programme attend un fichier en paramêtre:
+
+level08@OverRide:~$ ./level08
+Usage: ./level08 filename
+ERROR: Failed to open (null)
+
+Quand on met un fichier, il le sauvegarde dans le directory backups:
+
+level08@OverRide:~$ ./level08 level08
+level08@OverRide:~$ cd backups
+level08@OverRide:~/backups$ ls
+level08
+
+En créant un fichier dans tmp, si on souhaite le backups, on nous dit que c'est impossible d'ouvrir .log situé dans backups en local (dans tmp)
+
+level08@OverRide:~$ cd /tmp
+level08@OverRide:/tmp$ ls
+jiji
+level08@OverRide:/tmp$ ~/level08 jiji
+ERROR: Failed to open ./backups/.log
+
+DONC: On crée un directory backups dans tmp, dans lequel on crée un .log, on revient dans tmp et on regarde si on backup bien notre fichier jiji:
+
+level08@OverRide:/tmp$ mkdir backups
+level08@OverRide:/tmp$ cd backups
+level08@OverRide:/tmp/backups$ touch .log
+level08@OverRide:/tmp/backups$ cd ..
+level08@OverRide:/tmp$ touch jiji
+level08@OverRide:/tmp$ ~/level08 jiji
+level08@OverRide:/tmp$ ls
+backups  jiji 
+level08@OverRide:/tmp$ cd backups
+level08@OverRide:/tmp/backups$ ls
+jiji
+
+Oui, on backup bien notre fichier jiji :)
+Nous n'avons plus qu'à passer le .pass en argument
+
+level08@OverRide:/tmp$ ~/level08 /home/users/level09/.pass
+ERROR: Failed to open ./backups//home/users/level09/.pass
+
+Nous devons créer le chemin dans backups pour pouvoir recevoir le .pass
+
+level08@OverRide:/tmp$ mkdir backups/home/users/level09
+mkdir: cannot create directory `backups/home/users/level09': No such file or directory
+
+Pour le -p de mkdir:
+    full path prefix of each operand must already exist.  On the other hand, with this
+    option specified, no error will be reported if a directory given as an operand
+    already exists.  Intermediate directories are created with permission bits of
+    rwxrwxrwx (0777) as modified by the current umask, plus write and search permission
+    for the owner.
+
+level08@OverRide:/tmp$ mkdir -p backups/home/users/level09
+
+level08@OverRide:/tmp$ ~/level08 /home/users/level09/.pass
+level08@OverRide:/tmp$ cat backups/home/users/level09/.pass
+fjAwpJNs2vvkFLRebEvAQ2hFZ4uQBWfHRsP62d8S
