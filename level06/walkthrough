@@ -1,0 +1,64 @@
+Quand on lance l'exectuable, celui-ci nous demande un login et un serial number.
+
+On trouve l'appel system dans le disas du main
+
+   0x08048956 <+221>:   movl   $0x8048b61,(%esp)
+   0x0804895d <+228>:   call   0x80485a0 <system@plt>
+
+   Nous n'avons accès au shell que si la comparaison est égale:
+
+   0x08048941 <+200>:   call   0x8048748 <auth>
+   0x08048946 <+205>:   test   %eax,%eax
+   0x08048948 <+207>:   jne    0x8048969 <main+240>
+
+   Dans quel cas est-ce que la comparaison est égale (retourne 0)?
+
+   Dans le cas où nous allons jusqu'à la fin du programme:
+
+   0x08048872 <+298>:   mov    $0x0,%eax
+
+   Si à la ligne 286 la comparaison ne fait pas jump, alors la fonction retournera 1,
+   dans le cas inverse, elle retournera 0:
+
+   0x08048863 <+283>:   mov    0xc(%ebp),%eax
+   0x08048866 <+286>:   cmp    -0x10(%ebp),%eax
+   0x08048869 <+289>:   je     0x8048872 <auth+298>
+
+level06@OverRide:~$ gdb -q level06
+Reading symbols from /home/users/level06/level06...(no debugging symbols found)...done.
+(gdb) break *0x080487ba
+Breakpoint 1 at 0x80487ba
+(gdb) break *0x08048866 
+Breakpoint 2 at 0x8048866
+(gdb) run
+Starting program: /home/users/level06/level06 
+***********************************
+*               level06           *
+***********************************
+-> Enter Login: username
+***********************************
+***** NEW ACCOUNT DETECTED ********
+***********************************
+-> Enter Serial: 12345
+
+Breakpoint 1, 0x080487ba in auth ()
+(gdb) set $eax=0
+(gdb) c
+Continuing.
+
+Breakpoint 2, 0x08048866 in auth ()
+(gdb) x/d $ebp-0x10
+0xffffd688:     6234463
+
+level06@OverRide:~$ ./level06 
+***********************************
+*               level06           *
+***********************************
+-> Enter Login: username
+***********************************
+***** NEW ACCOUNT DETECTED ********
+***********************************
+-> Enter Serial: 6234463
+Authenticated!
+$ cat /home/users/level07/.pass
+GbcPDRgsFK77LNnnuh7QyFYA2942Gp8yKj9KrWD8
