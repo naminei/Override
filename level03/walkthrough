@@ -66,10 +66,10 @@ Le deuxième param est: 322424845
 
 Nous cherchons donc à passer de "Q}|u`sfg~sf{}|a3" à "Congratulations!"
 
-Comment passer de Q à C?
-man ascii
-'Q' = 121 et 'C' = 103
-'Q' - 'C' = 18
+Donc Q XOR X = C, donc Q XOR C = X.
+
+'Q' = 0x51 et 'C' = 0x43
+0x51 ^ 0x43 = 0x12 => 18
 
 Pour que decrypt recoive 18 en parametre, on doit donc avoir 18 en moins entre
 322424845 et le nombre que l'on reçoit grâce au scanf.
