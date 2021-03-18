@@ -13,7 +13,7 @@ Dump of assembler code for function main:
    0x080486eb <+35>:	mov    $0x20,%edx
    0x080486f0 <+40>:	mov    %ebx,%edi
    0x080486f2 <+42>:	mov    %edx,%ecx
-   0x080486f4 <+44>:	rep stos %eax,%es:(%edi)
+   0x080486f4 <+44>:	rep stos %eax,%es:(%edi) 
    0x080486f6 <+46>:	movl   $0x0,0xa8(%esp)
    0x08048701 <+57>:	movl   $0x0,0x1c(%esp)
    0x08048709 <+65>:	cmpl   $0x0,0xac(%esp)
