@@ -17,7 +17,7 @@ There is no call to system so we'll do it ourself
 
 STEP 1: Get System call in our hand
 
---> At the begining of the main we can see that env variable and argv are erase and set to 0 (cf memset)
+--> At the begining of the main we can see that env variable and argv are erase and set to 0 (cf memset / bzero like)
 
 So we'll need to get system address thanks gdb:
 (gdb) i f system
@@ -55,7 +55,7 @@ Here it is: /bin/sh address: 0xf7f897ec
 
 STEP 3: GET THE EIP OFFSET
 
-We cannot use a string with wire shark so we'll do it from scratch. 
+We cannot use a string with wire mask so we'll do it from scratch. 
 1- Get address of our tab ( we see in disas main that our tab is store in $esp+0x8)
     (gdb) x/x $ebp+0x8
     0xffffd4e0:	[[0xffffd504]]

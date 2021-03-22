@@ -111,7 +111,7 @@ Dump of assembler code for function verify_user_pass:
 End of assembler dump.
 
 On observe en premier lieu dans verify_user_name en +25 en clair l'username dat_wil et dans
-verify_user_pass en +10 le mdp admin. Cependant lors d'un essai on n'arrive pas a ce connecter.
+verify_user_pass en +10 le mdp admin. Cependant lors d'un essai on n'arrive pas a se connecter.
 On tente de voir si il y a un overflow et on remarque que la fonction user_pass a un overflow sur son
 fgets et que l'offset est de 80.
 De plus on remarque qu'il n'y a pas de system ou execve, on va donc utiliser un shellcode:
